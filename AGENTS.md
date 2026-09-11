@@ -1,3 +1,13 @@
+<!-- BEGIN:nextjs-agent-rules -->
+
+# This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->
+
 # GymTracker repository guidance
 
 ## Source of truth and current phase
@@ -6,10 +16,10 @@ This file is the canonical product and autonomous-work guidance for this reposit
 Keep it current as the user makes decisions; avoid duplicate product plans or process
 documents. Explicit user instructions govern the current task.
 
-The repository is in groundwork only. Do not scaffold Next.js, install the product
-stack, or build the application until a subsequent implementation goal requests it.
-Once implementation is requested, update the README with real setup and verification
-commands as they become available. Do not invent commands or claim absent tests pass.
+The repository contains the technical application foundation. Build product features
+only when an implementation goal requests them. Update the README with real setup and
+verification commands as they become available. Do not invent commands or claim absent
+tests pass.
 
 ## Product direction
 
