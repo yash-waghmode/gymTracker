@@ -1,0 +1,33 @@
+# Local environment and credentials; examples must contain placeholders only.
+.env
+.env.*
+!.env.example
+!.env.*.example
+*.pem
+*.key
+
+# Dependencies and generated web output.
+node_modules/
+.next/
+out/
+dist/
+build/
+coverage/
+*.tsbuildinfo
+next-env.d.ts
+
+# Local tools, logs, and generated test artifacts.
+.vercel/
+.supabase/
+supabase/.temp/
+supabase/.branches/
+*.log
+playwright-report/
+test-results/
+
+# OS/editor temporary files.
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~

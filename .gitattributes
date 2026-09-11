@@ -1,0 +1,3 @@
+# Normalize text in Git while allowing platform-native checkout line endings.
+* text=auto
+*.sh text eol=lf
