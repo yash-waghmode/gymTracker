@@ -16,10 +16,10 @@ This file is the canonical product and autonomous-work guidance for this reposit
 Keep it current as the user makes decisions; avoid duplicate product plans or process
 documents. Explicit user instructions govern the current task.
 
-The repository contains the technical application foundation. Build product features
-only when an implementation goal requests them. Update the README with real setup and
-verification commands as they become available. Do not invent commands or claim absent
-tests pass.
+The repository contains the technical, database, and authentication foundations. Build
+product features only when an implementation goal requests them. Update the README with
+real setup and verification commands as they become available. Do not invent commands
+or claim absent tests pass.
 
 ## Product direction
 

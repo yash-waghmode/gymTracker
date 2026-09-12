@@ -1,0 +1,2 @@
+-- Add reviewed built-in exercise catalog entries here when product work defines them.
+-- An exercise with owner_id = null is built-in and readable by authenticated users.

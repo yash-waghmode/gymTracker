@@ -1,4 +1,5 @@
 import styles from "./page.module.css";
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -16,8 +17,16 @@ export default function Home() {
           buddies.
         </p>
         <p className={styles.note}>
-          Workout features will arrive in the next implementation phase.
+          Sign in to enter the protected application foundation.
         </p>
+        <div className={styles.actions}>
+          <Link className={styles.primaryAction} href="/auth">
+            Sign in
+          </Link>
+          <Link className={styles.secondaryAction} href="/app">
+            Open app
+          </Link>
+        </div>
       </section>
     </main>
   );
