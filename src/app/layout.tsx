@@ -5,7 +5,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "GymTracker",
-  description: "A focused home for personal and shared training progress.",
+  description: "Your private workout log, routines, and exercise progress.",
   applicationName: "GymTracker",
 };
 

@@ -16,8 +16,9 @@ This file is the canonical product and autonomous-work guidance for this reposit
 Keep it current as the user makes decisions; avoid duplicate product plans or process
 documents. Explicit user instructions govern the current task.
 
-The repository contains the technical, database, and authentication foundations. Build
-product features only when an implementation goal requests them. Update the README with
+The repository contains the solo training product: routines, workout logging,
+history, and basic exercise records, on the database and authentication foundations.
+Circle and multiplayer product features remain deferred. Update the README with
 real setup and verification commands as they become available. Do not invent commands
 or claim absent tests pass.
 
@@ -116,7 +117,7 @@ Carry this invariant through schema design, authorization, APIs, UI, and tests:
   For implementation, exercise affected behavior and use relevant lint, type,
   build, and test checks when present. Ownership/privacy changes need meaningful
   authorization tests. For documentation, inspect full content, links, diff, and
-  repository state; application tests do not exist at this groundwork stage.
+  repository state. The solo milestone includes unit, PostgreSQL, and browser tests.
 - Before handing off, compare the result to the full request, inspect the final
   diff/status, and report exactly what changed, checks run, assumptions, and any
   genuine blocker. Distinguish verified behavior from anything still untested.

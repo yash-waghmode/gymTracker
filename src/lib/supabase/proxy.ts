@@ -49,7 +49,13 @@ export async function updateSupabaseSession(request: NextRequest) {
   }
 
   if (claims?.sub && pathname === "/auth") {
-    return NextResponse.redirect(new URL("/app", request.url));
+    const redirectResponse = NextResponse.redirect(
+      new URL("/app", request.url),
+    );
+    response.cookies.getAll().forEach((cookie) => {
+      redirectResponse.cookies.set(cookie);
+    });
+    return redirectResponse;
   }
 
   return response;

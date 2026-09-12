@@ -232,6 +232,7 @@ export type Database = {
       };
       workouts: {
         Row: {
+          title: string;
           id: string;
           session_id: string;
           owner_id: string;
@@ -243,6 +244,7 @@ export type Database = {
           updated_at: string;
         };
         Insert: {
+          title?: string;
           id?: string;
           session_id: string;
           owner_id: string;
@@ -254,6 +256,7 @@ export type Database = {
           updated_at?: string;
         };
         Update: {
+          title?: string;
           id?: string;
           session_id?: string;
           owner_id?: string;
@@ -375,7 +378,27 @@ export type Database = {
       };
     };
     Views: { [_ in never]: never };
-    Functions: { [_ in never]: never };
+    Functions: {
+      save_routine: {
+        Args: {
+          p_id: string | null;
+          p_name: string;
+          p_exercises: string[];
+        };
+        Returns: string;
+      };
+      start_workout: { Args: { p_routine?: string | null }; Returns: string };
+      change_workout: {
+        Args: {
+          p_workout: string;
+          p_operation: string;
+          p_target?: string | null;
+          p_weight?: number | null;
+          p_reps?: number | null;
+        };
+        Returns: string;
+      };
+    };
     Enums: { [_ in never]: never };
     CompositeTypes: { [_ in never]: never };
   };

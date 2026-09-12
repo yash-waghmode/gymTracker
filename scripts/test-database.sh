@@ -38,7 +38,9 @@ server_started=true
 
 psql -v ON_ERROR_STOP=1 -h "$socket_dir" -d postgres \
   -f "$project_dir/scripts/test-support/supabase-bootstrap.sql" >/dev/null
-psql -v ON_ERROR_STOP=1 -h "$socket_dir" -d postgres \
-  -f "$project_dir/supabase/migrations/20260912000100_core_training_schema.sql" >/dev/null
-psql -v ON_ERROR_STOP=1 -h "$socket_dir" -d postgres \
-  -f "$project_dir/supabase/tests/database/ownership.test.sql"
+for migration in "$project_dir"/supabase/migrations/*.sql; do
+  psql -v ON_ERROR_STOP=1 -h "$socket_dir" -d postgres -f "$migration" >/dev/null
+done
+for test_file in "$project_dir"/supabase/tests/database/*.test.sql; do
+  psql -v ON_ERROR_STOP=1 -h "$socket_dir" -d postgres -f "$test_file"
+done
