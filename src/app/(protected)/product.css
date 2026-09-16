@@ -372,6 +372,86 @@
   color: var(--muted);
   line-height: 1.5;
 }
+.shared-training {
+  border-color: var(--accent);
+}
+.shared-training .input-hint,
+.shared-workout-context .input-hint {
+  font-size: 0.875rem;
+}
+.shared-training form button {
+  width: 100%;
+}
+.training-live {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.75rem;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  background: var(--lime);
+  color: var(--ink);
+  font-size: 0.875rem;
+  font-weight: 750;
+  white-space: nowrap;
+}
+.shared-session {
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+.shared-session:first-child {
+  padding-top: 0;
+  border-top: 0;
+}
+.shared-session-lead {
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+.shared-partners {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.shared-partners li {
+  display: grid;
+  gap: 0.15rem;
+  min-width: 7.5rem;
+  padding: 0.55rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 0.6rem;
+  background: var(--background);
+}
+.shared-partner-name {
+  font-size: 0.875rem;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+.shared-partner-status {
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+.shared-close {
+  border-top: 1px solid var(--border);
+  padding-top: 0.5rem;
+}
+.shared-close summary {
+  color: var(--muted);
+}
+.shared-workout-context {
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--accent);
+  border-radius: 0.85rem;
+  background: var(--accent-soft);
+}
+.shared-workout-context a {
+  font-weight: 700;
+  text-underline-offset: 0.25em;
+}
+.shared-workout-context .shared-partners li {
+  background: var(--surface);
+}
 .invite-share input {
   overflow: hidden;
   text-overflow: ellipsis;

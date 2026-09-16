@@ -578,6 +578,14 @@ export type Database = {
           participant_count: number;
         }[];
       };
+      get_shared_session_participants: {
+        Args: { p_session_id: string };
+        Returns: {
+          user_id: string;
+          display_name: string | null;
+          workout_finished: boolean;
+        }[];
+      };
       change_workout: {
         Args: {
           p_workout: string;

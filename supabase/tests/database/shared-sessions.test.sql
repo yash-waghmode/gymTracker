@@ -81,6 +81,10 @@ begin
     raise exception 'Outsider discovered active session';
   exception when insufficient_privilege then null; end;
   begin
+    perform public.get_shared_session_participants(shared_id);
+    raise exception 'Outsider discovered participant identities';
+  exception when insufficient_privilege then null; end;
+  begin
     perform public.join_shared_session(shared_id);
     raise exception 'Outsider joined session';
   exception when insufficient_privilege then null; end;
@@ -96,6 +100,12 @@ begin
       and created_by = a_id and creator_display_name = 'Creator A'
       and status = 'active' and participant_count = 1
   ) then raise exception 'Co-member discovery metadata wrong'; end if;
+  if not exists (
+    select 1 from public.get_shared_session_participants(shared_id)
+    where user_id = a_id and display_name = 'Creator A' and not workout_finished
+  ) or (select count(*) from public.get_shared_session_participants(shared_id)) <> 1 then
+    raise exception 'Safe pre-join participant identities unavailable';
+  end if;
   routine_b := public.save_routine(null, 'B routine', array[bench_id]);
   workout_b := public.join_shared_session(shared_id, routine_b);
   if public.join_shared_session(shared_id) <> workout_b
@@ -105,6 +115,9 @@ begin
     or (select routine_id from public.workouts where id = workout_b) <> routine_b
     or (select participant_count from public.get_active_shared_sessions(target_circle) where session_id = shared_id) <> 2
   then raise exception 'Join, personal routine, or idempotency failed'; end if;
+  if (select count(*) from public.get_shared_session_participants(shared_id)) <> 2 then
+    raise exception 'Joined member missing from safe presence';
+  end if;
   if exists (select 1 from public.workouts where id = workout_a)
     or exists (select 1 from public.workout_exercises where workout_id = workout_a) then
     raise exception 'B can read A private workout';
@@ -177,6 +190,13 @@ begin
     or (select completed_at from public.workouts where id = workout_a) is null then
     raise exception 'A completion ended shared context';
   end if;
+  if not exists (
+    select 1 from public.get_shared_session_participants(shared_id)
+    where user_id = a_id and workout_finished
+  ) or not exists (
+    select 1 from public.get_shared_session_participants(shared_id)
+    where user_id = b_id and not workout_finished
+  ) then raise exception 'Independent workout status not reflected in safe presence'; end if;
   perform public.end_shared_session(shared_id);
   perform public.end_shared_session(shared_id);
   if (select status from public.workout_sessions where id = shared_id) <> 'completed'
@@ -223,6 +243,10 @@ begin
   begin
     perform public.get_active_shared_sessions(target_circle);
     raise exception 'Former member used discovery function';
+  exception when insufficient_privilege then null; end;
+  begin
+    perform public.get_shared_session_participants(later_session);
+    raise exception 'Former member used participant presence function';
   exception when insufficient_privilege then null; end;
   exercise_b := public.change_workout(later_workout_b, 'add_exercise', bench_id);
   perform public.change_workout(later_workout_b, 'add_set', exercise_b, 30, 8);

@@ -170,9 +170,9 @@ Current scaling tradeoff: the data boundary reads the owner's normalized trainin
 rows in explicit pages to avoid silent 1000-row truncation. Views derive progress
 in memory. For large histories, replace these with scoped queries/aggregations and
 paginated screens while preserving the same PR semantics. Offline synchronization,
-reopening finished workouts, account deletion, and multiplayer UX are later work.
+reopening finished workouts, account deletion, and broader multiplayer UX are later work.
 
-## Shared Circle session backend
+## Shared Circle workouts
 
 `20260916000500_shared_circle_sessions.sql` adds a nullable Circle association
 and a durable shared/solo flag to existing workout sessions. Authenticated Circle
@@ -190,5 +190,10 @@ leaves all personal workouts unchanged and independently finishable. Personal
 completion never closes a shared session, even with one participant. Leaving a
 Circle removes access to its session presence but keeps personal workout history.
 Deleting a Circle closes active shared sessions and detaches their Circle link;
-workouts and their contents survive. There is no shared-session UI or realtime
-sync yet.
+workouts and their contents survive.
+
+On the Circle detail page, members choose their own routine or an empty workout
+to start or join, then continue in the existing personal workout logger. The
+Circle and workout pages show only current members' names and whether their own
+workout is still in progress or finished. Status updates appear on refresh; there
+is no realtime set syncing or access to another person's workout contents.

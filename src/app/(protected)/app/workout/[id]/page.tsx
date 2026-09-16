@@ -7,6 +7,9 @@ import {
   SetForm,
 } from "@/components/training/forms";
 import { LocalDate } from "@/components/training/date";
+import { SharedPartners } from "@/components/circles/shared-training";
+import { getCurrentUser } from "@/data/auth";
+import { getSharedWorkoutContext } from "@/data/shared-sessions";
 import { workoutStats } from "@/lib/training";
 import { exerciseHistory, recordsForWorkout } from "@/lib/training-history";
 import { changeWorkout } from "../../training-actions";
@@ -19,6 +22,10 @@ export default async function WorkoutDetail({
   const data = await getTraining();
   const workout = data.workouts.find((w) => w.id === id);
   if (!workout) notFound();
+  const [sharedContext, user] = await Promise.all([
+    getSharedWorkoutContext(workout.session_id),
+    getCurrentUser(),
+  ]);
   const exercises = data.workoutExercises
     .filter((e) => e.workout_id === id)
     .sort((a, b) => a.position - b.position);
@@ -40,6 +47,29 @@ export default async function WorkoutDetail({
           <LocalDate value={workout.started_at} />
         </p>
       </header>
+      {sharedContext && (
+        <section className="shared-workout-context stack compact">
+          <div className="row wrap">
+            <span className="training-live">Together</span>
+            <Link href={`/app/circles/${sharedContext.circleId}`}>
+              {sharedContext.circleName} →
+            </Link>
+          </div>
+          <p className="input-hint">
+            {sharedContext.sessionStatus === "active"
+              ? workout.completed_at
+                ? "Your workout is done. Others can keep training."
+                : "You’re training together. Only your sets appear here."
+              : workout.completed_at
+                ? "The Circle session is closed. Your workout is saved."
+                : "The Circle session is closed, but you can keep logging and finish."}
+          </p>
+          <SharedPartners
+            participants={sharedContext.participants}
+            userId={user?.id ?? ""}
+          />
+        </section>
+      )}
       <div className="summary-grid">
         <div>
           <strong>{stats.sets}</strong>

@@ -3,12 +3,18 @@ import { notFound, redirect } from "next/navigation";
 
 import { ActionForm } from "@/components/training/forms";
 import { InviteManager } from "@/components/circles/invite-manager";
+import { SharedTraining } from "@/components/circles/shared-training";
 import { getCurrentUser } from "@/data/auth";
 import {
   getCircle,
   getCircleActiveInvites,
   getCircleMembers,
 } from "@/data/circles";
+import {
+  getActiveSharedSessions,
+  getSharedSessionParticipants,
+  getSharedWorkoutChoices,
+} from "@/data/shared-sessions";
 import { parseId } from "@/lib/training";
 
 import { deleteCircleAction, leaveCircleAction } from "../../circle-actions";
@@ -36,7 +42,22 @@ export default async function CircleDetail({
   if (!user) redirect("/auth?notice=signin-required");
 
   const isOwner = circle.owner_id === user.id;
-  const activeInvites = isOwner ? await getCircleActiveInvites(circleId) : [];
+  const [activeSessions, activeInvites] = await Promise.all([
+    getActiveSharedSessions(circleId),
+    isOwner ? getCircleActiveInvites(circleId) : Promise.resolve([]),
+  ]);
+  const [choices, participants] = await Promise.all([
+    getSharedWorkoutChoices(activeSessions.map((session) => session.sessionId)),
+    Promise.all(
+      activeSessions.map((session) =>
+        getSharedSessionParticipants(session.sessionId),
+      ),
+    ),
+  ]);
+  const trainingSessions = activeSessions.map((session, index) => ({
+    ...session,
+    participants: participants[index],
+  }));
 
   return (
     <>
@@ -54,6 +75,13 @@ export default async function CircleDetail({
           {members.length} {members.length === 1 ? "member" : "members"}
         </p>
       </header>
+
+      <SharedTraining
+        circleId={circle.id}
+        userId={user.id}
+        sessions={trainingSessions}
+        choices={choices}
+      />
 
       <section className="card stack">
         <div className="section-heading">
