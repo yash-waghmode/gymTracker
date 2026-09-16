@@ -12,6 +12,7 @@ import {
   revokeCircleInvite,
   type CircleInviteCredential,
 } from "@/data/circles";
+import { cancelCircleGoal, createCircleGoal } from "@/data/circle-goals";
 import { parseId } from "@/lib/training";
 
 import type { ActionResult } from "./training-actions";
@@ -127,4 +128,39 @@ export async function acceptCircleInviteAction(
 
   revalidatePath("/app/circles");
   redirect(`/app/circles/${circleId}`);
+}
+
+export async function createCircleGoalAction(
+  _: ActionResult,
+  form: FormData,
+): Promise<ActionResult> {
+  let circleId: string;
+  try {
+    circleId = parseId(formString(form, "circle"));
+    const target = Number(formString(form, "target"));
+    await createCircleGoal(circleId, target);
+  } catch {
+    return {
+      error: "Goal could not be started. Check the target and try again.",
+    };
+  }
+  revalidatePath(`/app/circles/${circleId}`);
+  return { success: "Goal started for everyone." };
+}
+
+export async function cancelCircleGoalAction(
+  _: ActionResult,
+  form: FormData,
+): Promise<ActionResult> {
+  if (formString(form, "confirm") !== "cancel") {
+    return { error: "Confirm that you want to end this goal." };
+  }
+  try {
+    const circleId = parseId(formString(form, "circle"));
+    await cancelCircleGoal(formString(form, "goal"));
+    revalidatePath(`/app/circles/${circleId}`);
+    return { success: "Goal ended. Everyone’s workouts remain intact." };
+  } catch {
+    return { error: "Goal could not be ended. Please try again." };
+  }
 }

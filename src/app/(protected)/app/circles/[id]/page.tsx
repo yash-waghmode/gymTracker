@@ -4,7 +4,12 @@ import { notFound, redirect } from "next/navigation";
 import { ActionForm } from "@/components/training/forms";
 import { InviteManager } from "@/components/circles/invite-manager";
 import { SharedTraining } from "@/components/circles/shared-training";
+import { CircleWorkoutGoal } from "@/components/circles/workout-goal";
 import { getCurrentUser } from "@/data/auth";
+import {
+  getActiveCircleGoal,
+  getCircleGoalProgress,
+} from "@/data/circle-goals";
 import {
   getCircle,
   getCircleActiveInvites,
@@ -42,10 +47,14 @@ export default async function CircleDetail({
   if (!user) redirect("/auth?notice=signin-required");
 
   const isOwner = circle.owner_id === user.id;
-  const [activeSessions, activeInvites] = await Promise.all([
+  const [activeSessions, activeInvites, activeGoal] = await Promise.all([
     getActiveSharedSessions(circleId),
     isOwner ? getCircleActiveInvites(circleId) : Promise.resolve([]),
+    getActiveCircleGoal(circleId),
   ]);
+  const goalProgress = activeGoal
+    ? await getCircleGoalProgress(activeGoal.goalId)
+    : null;
   const [choices, participants] = await Promise.all([
     getSharedWorkoutChoices(activeSessions.map((session) => session.sessionId)),
     Promise.all(
@@ -75,6 +84,14 @@ export default async function CircleDetail({
           {members.length} {members.length === 1 ? "member" : "members"}
         </p>
       </header>
+
+      <CircleWorkoutGoal
+        circleId={circle.id}
+        currentUserId={user.id}
+        isOwner={isOwner}
+        members={members}
+        progress={goalProgress}
+      />
 
       <SharedTraining
         circleId={circle.id}

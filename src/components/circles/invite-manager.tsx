@@ -47,7 +47,11 @@ export function InviteManager({
   }
 
   return (
-    <section className="card stack compact" aria-labelledby="invite-title">
+    <section
+      id="circle-invites"
+      className="card stack compact"
+      aria-labelledby="invite-title"
+    >
       <div className="section-heading">
         <h2 id="invite-title">Invite someone</h2>
       </div>

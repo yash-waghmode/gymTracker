@@ -86,7 +86,7 @@ members, and expose owner deletion or non-owner leaving as appropriate. Owners c
 create, copy, and revoke one-time invitation links on the Circle detail page. The
 `/invite/[token]` route previews a valid Circle invitation, sends unauthenticated
 visitors through sign-in, and accepts it before opening the joined Circle. Invitation
-delivery, goal UI, reactions, nudges, and feeds remain out of scope.
+delivery, reactions, nudges, and feeds remain out of scope.
 
 Circle owners can create one-time bearer invitations through the server data layer.
 The database stores only a SHA-256 digest of each 64-character random credential;
@@ -115,7 +115,13 @@ late joiners are excluded, leavers stop affecting success, and a starting member
 leaves then rejoins becomes eligible again (including their in-window completions).
 Expired goals stop being active without a scheduler. Restricted functions return only
 member display names, counts, timing, and group status; personal workout rows remain
-owner-only. No goal UI exists yet.
+owner-only. The Circle detail page lets owners start a goal with a 1–7
+workout target or confirm ending an active goal. Members see the common target,
+deadline, group state, and each currently eligible member’s aggregate count in
+member order. Late joiners can view progress but are told they join the next
+goal; they are not shown as failing participants. Refreshing the Circle page
+loads updated counts after workouts are completed. There is no realtime sync
+or goal archive UI.
 
 ## Verification
 
