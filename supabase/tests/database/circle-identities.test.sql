@@ -87,15 +87,30 @@ select set_config(
   true
 );
 
--- Member addition remains outside application scope. Model an explicitly
--- authorized future addition as the database owner for this privacy test.
+do $$
+begin
+  perform set_config(
+    'test.identity_invite_token',
+    (select token from public.create_circle_invite(
+      current_setting('test.identity_circle_id')::uuid
+    )),
+    true
+  );
+end;
+$$;
+
 reset role;
-insert into public.circle_members (circle_id, user_id)
-values (
-  current_setting('test.identity_circle_id')::uuid,
-  '40000000-0000-0000-0000-000000000002'
+set role authenticated;
+select set_config(
+  'request.jwt.claim.sub',
+  '40000000-0000-0000-0000-000000000002',
+  true
+);
+select public.accept_circle_invite(
+  current_setting('test.identity_invite_token')
 );
 
+reset role;
 set role authenticated;
 select set_config(
   'request.jwt.claim.sub',

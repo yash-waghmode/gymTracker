@@ -18,6 +18,11 @@ declare
 begin
   created_circle_id := public.create_circle('Morning crew');
   perform set_config('test.circle_id', created_circle_id::text, true);
+  perform set_config(
+    'test.circle_invite_token',
+    (select token from public.create_circle_invite(created_circle_id)),
+    true
+  );
 
   if not exists (
     select 1
@@ -119,20 +124,9 @@ begin
 end;
 $$;
 
--- Invitations are deliberately out of scope. Simulate a future explicitly
--- authorized membership grant as the database owner, then resume RLS tests.
-reset role;
-insert into public.circle_members (circle_id, user_id)
-values (
-  current_setting('test.circle_id')::uuid,
-  '30000000-0000-0000-0000-000000000002'
-);
-
-set role authenticated;
-select set_config(
-  'request.jwt.claim.sub',
-  '30000000-0000-0000-0000-000000000002',
-  true
+-- The bearer credential, not the Circle ID, grants this membership.
+select public.accept_circle_invite(
+  current_setting('test.circle_invite_token')
 );
 
 do $$

@@ -12,6 +12,18 @@ export type CircleMemberIdentity = {
   user_id: string;
   display_name: string | null;
 };
+export type CircleInviteCredential = {
+  inviteId: string;
+  token: string;
+  expiresAt: string;
+};
+
+function parseInviteToken(value: unknown): string {
+  if (typeof value !== "string" || !/^[0-9a-f]{64}$/.test(value)) {
+    throw new Error("Invitation is invalid or no longer active.");
+  }
+  return value;
+}
 
 const circleContext = cache(async () => {
   const user = await getCurrentUser();
@@ -89,4 +101,50 @@ export async function deleteCircle(circleId: string): Promise<void> {
   const { error } = await db.rpc("delete_circle", { p_circle_id: id });
 
   if (error) throw new Error("Circle could not be deleted. Please try again.");
+}
+
+export async function createCircleInvite(
+  circleId: string,
+): Promise<CircleInviteCredential> {
+  const id = parseId(circleId);
+  const { db } = await circleContext();
+  const { data, error } = await db.rpc("create_circle_invite", {
+    p_circle_id: id,
+  });
+  const invite = data?.[0];
+
+  if (error || !invite) {
+    throw new Error("Invitation could not be created. Please try again.");
+  }
+
+  return {
+    inviteId: invite.invite_id,
+    token: invite.token,
+    expiresAt: invite.expires_at,
+  };
+}
+
+export async function acceptCircleInvite(token: string): Promise<string> {
+  const credential = parseInviteToken(token);
+  const { db } = await circleContext();
+  const { data, error } = await db.rpc("accept_circle_invite", {
+    p_token: credential,
+  });
+
+  if (error || !data) {
+    throw new Error("Invitation is invalid or no longer active.");
+  }
+  return data;
+}
+
+export async function revokeCircleInvite(inviteId: string): Promise<void> {
+  const id = parseId(inviteId);
+  const { db } = await circleContext();
+  const { error } = await db.rpc("revoke_circle_invite", {
+    p_invite_id: id,
+  });
+
+  if (error) {
+    throw new Error("Invitation could not be revoked. Please try again.");
+  }
 }

@@ -2,8 +2,8 @@
 
 A mobile-first solo fitness tracker: manage routines, log sets in kilograms,
 finish workouts, and inspect private training history and exercise records.
-Private Gym Circles and shared-session ownership are supported. Invites and broader
-multiplayer workflows remain deferred.
+Private Gym Circles, one-time Circle invitations, and shared-session ownership are
+supported. Broader multiplayer workflows remain deferred.
 
 Read [AGENTS.md](AGENTS.md) for the canonical product scope, architecture direction,
 data-ownership invariant, and autonomous development workflow.
@@ -37,10 +37,10 @@ No external Supabase project is provisioned by this repository.
 ## Database development
 
 The migrations in `supabase/migrations` create profiles, exercises, routines, private
-Gym Circles and members, shared session context, session participants, individually
-owned workouts, workout exercises, and sets. Creating a session automatically adds
-its creator as the first participant, so a normal solo workout uses the same model as
-a future shared workout.
+Gym Circles, members and invitations, shared session context, session participants,
+individually owned workouts, workout exercises, and sets. Creating a session
+automatically adds its creator as the first participant, so a normal solo workout uses
+the same model as a future shared workout.
 
 With Docker running, use the repo-local Supabase CLI:
 
@@ -81,8 +81,16 @@ the Circle, which cascades only its membership rows. Neither action changes pers
 workout history, and Circle membership grants no workout or set access.
 
 The `/app/circles` screens list memberships, create and open Circles, show current
-members, and expose owner deletion or non-owner leaving as appropriate. Invites,
-shared Circle workouts, goals, reactions, nudges, and feeds remain out of scope.
+members, and expose owner deletion or non-owner leaving as appropriate. The invite
+backend is available for later UI work; invite UI and delivery, shared Circle workouts,
+goals, reactions, nudges, and feeds remain out of scope.
+
+Circle owners can create one-time bearer invitations through the server data layer.
+The database stores only a SHA-256 digest of each 64-character random credential;
+credentials expire after seven days and can be revoked before acceptance. Acceptance
+derives the recipient from the authenticated session, atomically adds membership, and
+consumes the invite. Invite record IDs and Circle IDs are not join credentials, and
+authenticated clients cannot list the invitation table directly.
 
 Circle member identity is limited to the existing profile display name. A restricted
 database function returns only user IDs and display names when the authenticated caller

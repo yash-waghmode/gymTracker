@@ -17,6 +17,64 @@ type Relationship = {
 export type Database = {
   public: {
     Tables: {
+      circle_invites: {
+        Row: {
+          id: string;
+          circle_id: string;
+          created_by: string;
+          token_hash: string;
+          created_at: string;
+          expires_at: string;
+          accepted_at: string | null;
+          accepted_by: string | null;
+          revoked_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          circle_id: string;
+          created_by: string;
+          token_hash: string;
+          created_at?: string;
+          expires_at: string;
+          accepted_at?: string | null;
+          accepted_by?: string | null;
+          revoked_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          circle_id?: string;
+          created_by?: string;
+          token_hash?: string;
+          created_at?: string;
+          expires_at?: string;
+          accepted_at?: string | null;
+          accepted_by?: string | null;
+          revoked_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "circle_invites_circle_id_fkey";
+            columns: ["circle_id"];
+            isOneToOne: false;
+            referencedRelation: "gym_circles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "circle_invites_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "circle_invites_accepted_by_fkey";
+            columns: ["accepted_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       gym_circles: {
         Row: {
           id: string;
@@ -441,6 +499,15 @@ export type Database = {
     };
     Views: { [_ in never]: never };
     Functions: {
+      accept_circle_invite: { Args: { p_token: string }; Returns: string };
+      create_circle_invite: {
+        Args: { p_circle_id: string };
+        Returns: {
+          invite_id: string;
+          token: string;
+          expires_at: string;
+        }[];
+      };
       create_circle: { Args: { p_name: string }; Returns: string };
       get_circle_member_identities: {
         Args: { p_circle_id: string };
@@ -448,6 +515,10 @@ export type Database = {
       };
       leave_circle: { Args: { p_circle_id: string }; Returns: undefined };
       delete_circle: { Args: { p_circle_id: string }; Returns: undefined };
+      revoke_circle_invite: {
+        Args: { p_invite_id: string };
+        Returns: undefined;
+      };
       save_routine: {
         Args: {
           p_id: string | null;
