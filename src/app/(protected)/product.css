@@ -355,6 +355,9 @@
   display: grid;
   gap: 0.2rem;
 }
+.member-name strong {
+  overflow-wrap: anywhere;
+}
 .member-name small {
   color: var(--muted);
   font-size: 0.8rem;

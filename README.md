@@ -84,6 +84,12 @@ The `/app/circles` screens list memberships, create and open Circles, show curre
 members, and expose owner deletion or non-owner leaving as appropriate. Invites,
 shared Circle workouts, goals, reactions, nudges, and feeds remain out of scope.
 
+Circle member identity is limited to the existing profile display name. A restricted
+database function returns only user IDs and display names when the authenticated caller
+currently belongs to the requested Circle; direct profile reads remain self-only. Users
+can set their own Circle display name from `/app/profile`. Email and training data are
+never part of the Circle identity response.
+
 ## Verification
 
 ```bash

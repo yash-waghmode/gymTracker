@@ -55,19 +55,23 @@ export default async function CircleDetail({
           <span className="member-count">{members.length}</span>
         </div>
         <ul className="member-list">
-          {members.map((member, index) => {
+          {members.map((member) => {
             const isCurrentUser = member.user_id === user.id;
             const isCircleOwner = member.user_id === circle.owner_id;
+            const memberName =
+              member.display_name ?? (isCurrentUser ? "You" : "Name not set");
+            const memberInitial =
+              Array.from(memberName.trim())[0]?.toLocaleUpperCase() ?? "•";
             return (
               <li key={member.user_id}>
                 <span className="member-mark" aria-hidden="true">
-                  {isCurrentUser ? "Y" : index + 1}
+                  {memberInitial}
                 </span>
                 <span className="member-name">
-                  <strong>
-                    {isCurrentUser ? "You" : `Member ${index + 1}`}
-                  </strong>
-                  <small>Current member</small>
+                  <strong>{memberName}</strong>
+                  <small>
+                    {isCurrentUser ? "You · Current member" : "Current member"}
+                  </small>
                 </span>
                 {isCircleOwner && <span className="owner-badge">Owner</span>}
               </li>

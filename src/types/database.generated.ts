@@ -442,6 +442,10 @@ export type Database = {
     Views: { [_ in never]: never };
     Functions: {
       create_circle: { Args: { p_name: string }; Returns: string };
+      get_circle_member_identities: {
+        Args: { p_circle_id: string };
+        Returns: { user_id: string; display_name: string | null }[];
+      };
       leave_circle: { Args: { p_circle_id: string }; Returns: undefined };
       delete_circle: { Args: { p_circle_id: string }; Returns: undefined };
       save_routine: {

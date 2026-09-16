@@ -8,7 +8,10 @@ import { parseId, parseName } from "@/lib/training";
 import type { Tables } from "@/types/database.generated";
 
 export type Circle = Tables<"gym_circles">;
-export type CircleMember = Tables<"circle_members">;
+export type CircleMemberIdentity = {
+  user_id: string;
+  display_name: string | null;
+};
 
 const circleContext = cache(async () => {
   const user = await getCurrentUser();
@@ -44,15 +47,12 @@ export const getCircle = cache(
 );
 
 export const getCircleMembers = cache(
-  async (circleId: string): Promise<CircleMember[]> => {
+  async (circleId: string): Promise<CircleMemberIdentity[]> => {
     const id = parseId(circleId);
     const { db } = await circleContext();
-    const { data, error } = await db
-      .from("circle_members")
-      .select("*")
-      .eq("circle_id", id)
-      .order("joined_at")
-      .order("user_id");
+    const { data, error } = await db.rpc("get_circle_member_identities", {
+      p_circle_id: id,
+    });
 
     if (error)
       throw new Error("Circle members could not be loaded. Please try again.");
