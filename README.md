@@ -153,7 +153,7 @@ caller under RLS, derive ownership from `auth.uid()`, and lock writes against
 completion. Finishing requires at least one saved set and is idempotent. A solo
 session ends with its workout; personal completion never ends a multi-participant
 session. Completed set data is read-only. Deleting a routine preserves its workout
-history and title. Apply both migrations before using the UI.
+history and title. Apply the repository migrations before using the UI.
 
 PR definition: heaviest completed set per exercise; more reps at that weight wins
 ties. Zero kilograms represents bodyweight/unloaded movements, where reps break
@@ -171,3 +171,24 @@ rows in explicit pages to avoid silent 1000-row truncation. Views derive progres
 in memory. For large histories, replace these with scoped queries/aggregations and
 paginated screens while preserving the same PR semantics. Offline synchronization,
 reopening finished workouts, account deletion, and multiplayer UX are later work.
+
+## Shared Circle session backend
+
+`20260916000500_shared_circle_sessions.sql` adds a nullable Circle association
+and a durable shared/solo flag to existing workout sessions. Authenticated Circle
+members can start or join through `start_shared_session` and `join_shared_session`;
+each operation atomically creates exactly one caller-owned workout, optionally
+copied from that caller's own routine. Joining again returns the same workout.
+Only current Circle members can discover active session presence through
+`get_active_shared_sessions`, which returns session/creator identity, status, and
+a current-member participant count—not workouts, routines, exercises, sets, reps,
+or weights. Personal workout rows retain owner-only RLS. Session creators cannot
+add other people to a shared session or edit their workout data.
+
+Only the creator can call `end_shared_session`. Closure prevents new joins but
+leaves all personal workouts unchanged and independently finishable. Personal
+completion never closes a shared session, even with one participant. Leaving a
+Circle removes access to its session presence but keeps personal workout history.
+Deleting a Circle closes active shared sessions and detaches their Circle link;
+workouts and their contents survive. There is no shared-session UI or realtime
+sync yet.

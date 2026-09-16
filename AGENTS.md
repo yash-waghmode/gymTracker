@@ -18,8 +18,9 @@ documents. Explicit user instructions govern the current task.
 
 The repository contains the solo training product: routines, workout logging,
 history, and basic exercise records, plus private Circle membership, its basic
-create/read/leave/delete UI, and a private one-time invitation flow. Broader
-multiplayer features remain deferred.
+create/read/leave/delete UI, a private one-time invitation flow, and a backend-only
+shared-session lifecycle. Shared-session UI and broader multiplayer features remain
+deferred.
 Update the README with real setup and verification commands as they become available.
 Do not invent commands or claim absent tests pass.
 
@@ -75,6 +76,9 @@ Carry this invariant through schema design, authorization, APIs, UI, and tests:
   ownership. Enforce access on the server/database, not only through hidden UI.
 - Leaving a circle or session must not transfer or erase personal workout history
   as a side effect. Define lifecycle behavior explicitly when implementing it.
+- Shared Circle sessions are organizer-closed context. Closing or deleting the Circle
+  never finishes or deletes a participant's personal workout; members can complete
+  their own still-active workouts independently.
 - Verify isolation with multiple users: one participant can log their own sets;
   another cannot mutate them; permitted shared views honor privacy preferences.
 

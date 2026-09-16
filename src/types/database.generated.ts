@@ -273,6 +273,8 @@ export type Database = {
           created_by: string;
           title: string | null;
           status: string;
+          is_shared: boolean;
+          circle_id: string | null;
           started_at: string | null;
           ended_at: string | null;
           created_at: string;
@@ -283,6 +285,8 @@ export type Database = {
           created_by: string;
           title?: string | null;
           status?: string;
+          is_shared?: boolean;
+          circle_id?: string | null;
           started_at?: string | null;
           ended_at?: string | null;
           created_at?: string;
@@ -293,12 +297,21 @@ export type Database = {
           created_by?: string;
           title?: string | null;
           status?: string;
+          is_shared?: boolean;
+          circle_id?: string | null;
           started_at?: string | null;
           ended_at?: string | null;
           created_at?: string;
           updated_at?: string;
         };
         Relationships: [
+          {
+            foreignKeyName: "workout_sessions_circle_id_fkey";
+            columns: ["circle_id"];
+            isOneToOne: false;
+            referencedRelation: "gym_circles";
+            referencedColumns: ["id"];
+          },
           {
             foreignKeyName: "workout_sessions_created_by_fkey";
             columns: ["created_by"];
@@ -541,6 +554,30 @@ export type Database = {
         Returns: string;
       };
       start_workout: { Args: { p_routine?: string | null }; Returns: string };
+      start_shared_session: {
+        Args: { p_circle_id: string; p_routine?: string | null };
+        Returns: { session_id: string; workout_id: string }[];
+      };
+      join_shared_session: {
+        Args: { p_session_id: string; p_routine?: string | null };
+        Returns: string;
+      };
+      end_shared_session: {
+        Args: { p_session_id: string };
+        Returns: undefined;
+      };
+      get_active_shared_sessions: {
+        Args: { p_circle_id: string };
+        Returns: {
+          session_id: string;
+          circle_id: string;
+          started_at: string | null;
+          created_by: string;
+          creator_display_name: string | null;
+          status: string;
+          participant_count: number;
+        }[];
+      };
       change_workout: {
         Args: {
           p_workout: string;
