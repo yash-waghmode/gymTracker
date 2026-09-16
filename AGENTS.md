@@ -17,10 +17,10 @@ Keep it current as the user makes decisions; avoid duplicate product plans or pr
 documents. Explicit user instructions govern the current task.
 
 The repository contains the solo training product: routines, workout logging,
-history, and basic exercise records, on the database and authentication foundations.
-Circle and multiplayer product features remain deferred. Update the README with
-real setup and verification commands as they become available. Do not invent commands
-or claim absent tests pass.
+history, and basic exercise records, plus private Circle membership and its basic
+create/read/leave/delete UI. Invites and broader multiplayer features remain deferred.
+Update the README with real setup and verification commands as they become available.
+Do not invent commands or claim absent tests pass.
 
 ## Product direction
 

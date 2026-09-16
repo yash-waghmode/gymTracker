@@ -7,6 +7,7 @@ export function Navigation() {
     ["/app", "Home", "⌂"],
     ["/app/workout", "Workout", "＋"],
     ["/app/progress", "Progress", "↗"],
+    ["/app/circles", "Circle", "○"],
     ["/app/profile", "Profile", "◉"],
   ];
   return (

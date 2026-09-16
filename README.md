@@ -2,8 +2,8 @@
 
 A mobile-first solo fitness tracker: manage routines, log sets in kilograms,
 finish workouts, and inspect private training history and exercise records.
-Private Gym Circle membership and shared-session ownership are supported in the
-database; Circle and multiplayer UI are deferred.
+Private Gym Circles and shared-session ownership are supported. Invites and broader
+multiplayer workflows remain deferred.
 
 Read [AGENTS.md](AGENTS.md) for the canonical product scope, architecture direction,
 data-ownership invariant, and autonomous development workflow.
@@ -80,8 +80,9 @@ creation, leaving, and owner-only deletion. A non-owner may leave; an owner must
 the Circle, which cascades only its membership rows. Neither action changes personal
 workout history, and Circle membership grants no workout or set access.
 
-Invites, Circle UI, shared Circle workouts, goals, reactions, nudges, and feeds remain
-out of scope.
+The `/app/circles` screens list memberships, create and open Circles, show current
+members, and expose owner deletion or non-owner leaving as appropriate. Invites,
+shared Circle workouts, goals, reactions, nudges, and feeds remain out of scope.
 
 ## Verification
 
@@ -119,6 +120,7 @@ under `test-results/`.
   and intentionally finish. Logged sets survive navigation and refresh; unsubmitted
   fields remain in memory only. No offline queue is promised.
 - `/app/history` and `/app/progress`: completed training and exercise records.
+- `/app/circles`: private Circle creation, membership, leaving, and owner deletion.
 - `/app/profile`: account, sign out, and private custom exercises.
 
 The additive `20260912000200_solo_training.sql` migration installs 25 common
