@@ -3,9 +3,23 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-import { createCircle, deleteCircle, leaveCircle } from "@/data/circles";
+import {
+  acceptCircleInvite,
+  createCircle,
+  createCircleInvite,
+  deleteCircle,
+  leaveCircle,
+  revokeCircleInvite,
+  type CircleInviteCredential,
+} from "@/data/circles";
+import { parseId } from "@/lib/training";
 
 import type { ActionResult } from "./training-actions";
+
+export type CreateInviteResult = {
+  error?: string;
+  credential?: CircleInviteCredential;
+};
 
 function formString(form: FormData, name: string): string {
   const value = form.get(name);
@@ -67,4 +81,50 @@ export async function deleteCircleAction(
 
   revalidatePath("/app/circles");
   redirect("/app/circles");
+}
+
+export async function createCircleInviteAction(
+  _: CreateInviteResult,
+  form: FormData,
+): Promise<CreateInviteResult> {
+  const circleId = formString(form, "circle");
+  try {
+    const credential = await createCircleInvite(circleId);
+    revalidatePath(`/app/circles/${circleId}`);
+    return { credential };
+  } catch {
+    return { error: "Invite could not be created. Please try again." };
+  }
+}
+
+export async function revokeCircleInviteAction(
+  _: ActionResult,
+  form: FormData,
+): Promise<ActionResult> {
+  try {
+    const circleId = parseId(formString(form, "circle"));
+    await revokeCircleInvite(formString(form, "invite"));
+    revalidatePath(`/app/circles/${circleId}`);
+    return { success: "Invite revoked." };
+  } catch {
+    return { error: "Invite could not be revoked. Please try again." };
+  }
+}
+
+export async function acceptCircleInviteAction(
+  _: ActionResult,
+  form: FormData,
+): Promise<ActionResult> {
+  let circleId: string;
+  try {
+    circleId = await acceptCircleInvite(formString(form, "token"));
+  } catch {
+    return {
+      error:
+        "This invite can no longer be used. Ask the Circle owner for a new link.",
+    };
+  }
+
+  revalidatePath("/app/circles");
+  redirect(`/app/circles/${circleId}`);
 }

@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 
 import { getCurrentUser } from "@/data/auth";
+import { inviteReturnPath } from "@/lib/invite";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 
 import { signIn, signUp } from "./actions";
@@ -10,6 +11,7 @@ type AuthPageProps = {
   searchParams: Promise<{
     error?: string;
     notice?: string;
+    next?: string;
   }>;
 };
 
@@ -28,9 +30,10 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
   const configured = isSupabaseConfigured();
   const user = await getCurrentUser();
   const params = await searchParams;
+  const returnPath = inviteReturnPath(params.next);
 
   if (user) {
-    redirect("/app");
+    redirect(returnPath ?? "/app");
   }
 
   const messageKey = params.error ?? params.notice;
@@ -60,6 +63,7 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
         ) : null}
 
         <form className={styles.form} action={signIn}>
+          {returnPath && <input type="hidden" name="next" value={returnPath} />}
           <label htmlFor="email">Email</label>
           <input
             id="email"

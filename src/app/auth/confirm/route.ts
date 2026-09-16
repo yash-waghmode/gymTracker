@@ -1,6 +1,7 @@
 import type { EmailOtpType } from "@supabase/supabase-js";
 import { type NextRequest, NextResponse } from "next/server";
 
+import { inviteReturnPath } from "@/lib/invite";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
@@ -18,10 +19,12 @@ function isEmailOtpType(value: string): value is EmailOtpType {
 }
 
 export async function GET(request: NextRequest) {
+  const returnPath = inviteReturnPath(request.nextUrl.searchParams.get("next"));
   if (!isSupabaseConfigured()) {
-    return NextResponse.redirect(
-      new URL("/auth?error=not-configured", request.url),
-    );
+    const destination = new URL("/auth", request.url);
+    destination.searchParams.set("error", "not-configured");
+    if (returnPath) destination.searchParams.set("next", returnPath);
+    return NextResponse.redirect(destination);
   }
 
   const tokenHash = request.nextUrl.searchParams.get("token_hash");
@@ -35,16 +38,17 @@ export async function GET(request: NextRequest) {
       type,
     });
     if (!error) {
-      return NextResponse.redirect(new URL("/app", request.url));
+      return NextResponse.redirect(new URL(returnPath ?? "/app", request.url));
     }
   } else if (code) {
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) {
-      return NextResponse.redirect(new URL("/app", request.url));
+      return NextResponse.redirect(new URL(returnPath ?? "/app", request.url));
     }
   }
 
-  return NextResponse.redirect(
-    new URL("/auth?error=confirmation", request.url),
-  );
+  const destination = new URL("/auth", request.url);
+  destination.searchParams.set("error", "confirmation");
+  if (returnPath) destination.searchParams.set("next", returnPath);
+  return NextResponse.redirect(destination);
 }

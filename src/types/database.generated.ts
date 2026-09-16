@@ -500,6 +500,19 @@ export type Database = {
     Views: { [_ in never]: never };
     Functions: {
       accept_circle_invite: { Args: { p_token: string }; Returns: string };
+      get_circle_active_invites: {
+        Args: { p_circle_id: string };
+        Returns: { invite_id: string; expires_at: string }[];
+      };
+      get_circle_invite_preview: {
+        Args: { p_token: string };
+        Returns: {
+          status: string;
+          circle_id: string | null;
+          circle_name: string | null;
+          already_member: boolean;
+        }[];
+      };
       create_circle_invite: {
         Args: { p_circle_id: string };
         Returns: {

@@ -2,8 +2,13 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
 import { ActionForm } from "@/components/training/forms";
+import { InviteManager } from "@/components/circles/invite-manager";
 import { getCurrentUser } from "@/data/auth";
-import { getCircle, getCircleMembers } from "@/data/circles";
+import {
+  getCircle,
+  getCircleActiveInvites,
+  getCircleMembers,
+} from "@/data/circles";
 import { parseId } from "@/lib/training";
 
 import { deleteCircleAction, leaveCircleAction } from "../../circle-actions";
@@ -31,6 +36,7 @@ export default async function CircleDetail({
   if (!user) redirect("/auth?notice=signin-required");
 
   const isOwner = circle.owner_id === user.id;
+  const activeInvites = isOwner ? await getCircleActiveInvites(circleId) : [];
 
   return (
     <>
@@ -79,6 +85,10 @@ export default async function CircleDetail({
           })}
         </ul>
       </section>
+
+      {isOwner && (
+        <InviteManager circleId={circle.id} activeInvites={activeInvites} />
+      )}
 
       {isOwner ? (
         <details className="card circle-lifecycle">

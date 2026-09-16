@@ -3,6 +3,7 @@ import "server-only";
 import { cache } from "react";
 
 import { getCurrentUser } from "@/data/auth";
+import { isInviteToken } from "@/lib/invite";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { parseId, parseName } from "@/lib/training";
 import type { Tables } from "@/types/database.generated";
@@ -17,9 +18,19 @@ export type CircleInviteCredential = {
   token: string;
   expiresAt: string;
 };
+export type ActiveCircleInvite = {
+  inviteId: string;
+  expiresAt: string;
+};
+export type CircleInvitePreview = {
+  status: "active" | "invalid" | "expired" | "revoked" | "consumed";
+  circleId: string | null;
+  circleName: string | null;
+  alreadyMember: boolean;
+};
 
 function parseInviteToken(value: unknown): string {
-  if (typeof value !== "string" || !/^[0-9a-f]{64}$/.test(value)) {
+  if (!isInviteToken(value)) {
     throw new Error("Invitation is invalid or no longer active.");
   }
   return value;
@@ -147,4 +158,53 @@ export async function revokeCircleInvite(inviteId: string): Promise<void> {
   if (error) {
     throw new Error("Invitation could not be revoked. Please try again.");
   }
+}
+
+export async function getCircleActiveInvites(
+  circleId: string,
+): Promise<ActiveCircleInvite[]> {
+  const id = parseId(circleId);
+  const { db } = await circleContext();
+  const { data, error } = await db.rpc("get_circle_active_invites", {
+    p_circle_id: id,
+  });
+
+  if (error) {
+    throw new Error("Invitations could not be loaded. Please try again.");
+  }
+
+  return data.map((invite) => ({
+    inviteId: invite.invite_id,
+    expiresAt: invite.expires_at,
+  }));
+}
+
+export async function getCircleInvitePreview(
+  token: string,
+): Promise<CircleInvitePreview> {
+  if (!isInviteToken(token)) {
+    return {
+      status: "invalid",
+      circleId: null,
+      circleName: null,
+      alreadyMember: false,
+    };
+  }
+
+  const db = await createServerSupabaseClient();
+  const { data, error } = await db.rpc("get_circle_invite_preview", {
+    p_token: token,
+  });
+  const preview = data?.[0];
+
+  if (error || !preview) {
+    throw new Error("Invitation could not be loaded. Please try again.");
+  }
+
+  return {
+    status: preview.status as CircleInvitePreview["status"],
+    circleId: preview.circle_id,
+    circleName: preview.circle_name,
+    alreadyMember: preview.already_member,
+  };
 }

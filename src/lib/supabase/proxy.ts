@@ -3,6 +3,8 @@ import { type NextRequest, NextResponse } from "next/server";
 
 import type { Database } from "@/types/database.generated";
 
+import { inviteReturnPath } from "@/lib/invite";
+
 import { getPublicSupabaseConfig, isSupabaseConfigured } from "./config";
 
 export async function updateSupabaseSession(request: NextRequest) {
@@ -49,8 +51,11 @@ export async function updateSupabaseSession(request: NextRequest) {
   }
 
   if (claims?.sub && pathname === "/auth") {
+    const returnPath = inviteReturnPath(
+      request.nextUrl.searchParams.get("next"),
+    );
     const redirectResponse = NextResponse.redirect(
-      new URL("/app", request.url),
+      new URL(returnPath ?? "/app", request.url),
     );
     response.cookies.getAll().forEach((cookie) => {
       redirectResponse.cookies.set(cookie);

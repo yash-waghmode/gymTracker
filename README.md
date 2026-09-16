@@ -61,10 +61,11 @@ To use a hosted Supabase project later:
 
 1. Create or choose the project outside this repository.
 2. Add its URL and publishable key to `.env.local`; keep its secret key server-only.
-3. Set the Auth site URL to `http://localhost:3000` and allow
-   `http://localhost:3000/auth/confirm` as a redirect (use the actual origin later).
-4. For token-hash email confirmation, set the confirmation template link to
-   `{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email`.
+3. Set the Auth site URL to `http://localhost:3000` and allow the app's
+   `/auth/confirm?next=...` callback URL as a redirect (use the actual origin later).
+4. For token-hash email confirmation, set the confirmation template link
+   to `{{ .RedirectTo }}&token_hash={{ .TokenHash }}&type=email`, so invitation
+   context survives sign-up and confirmation.
 5. Link and push migrations with the Supabase CLI only after reviewing the target.
 
 The application never uses a secret/service key for ordinary user operations. Database
@@ -81,16 +82,24 @@ the Circle, which cascades only its membership rows. Neither action changes pers
 workout history, and Circle membership grants no workout or set access.
 
 The `/app/circles` screens list memberships, create and open Circles, show current
-members, and expose owner deletion or non-owner leaving as appropriate. The invite
-backend is available for later UI work; invite UI and delivery, shared Circle workouts,
-goals, reactions, nudges, and feeds remain out of scope.
+members, and expose owner deletion or non-owner leaving as appropriate. Owners can
+create, copy, and revoke one-time invitation links on the Circle detail page. The
+`/invite/[token]` route previews a valid Circle invitation, sends unauthenticated
+visitors through sign-in, and accepts it before opening the joined Circle. Invitation
+delivery, shared Circle workouts, goals, reactions, nudges, and feeds remain out of scope.
 
 Circle owners can create one-time bearer invitations through the server data layer.
 The database stores only a SHA-256 digest of each 64-character random credential;
 credentials expire after seven days and can be revoked before acceptance. Acceptance
 derives the recipient from the authenticated session, atomically adds membership, and
 consumes the invite. Invite record IDs and Circle IDs are not join credentials, and
-authenticated clients cannot list the invitation table directly.
+authenticated clients cannot list the invitation table directly. Owner-only listing
+returns active invite IDs and expiration times, never credentials or digests. A
+bearer-token preview reveals the Circle name only while the invite is active or the
+viewer is already a member. The generated link is held in page memory only; after
+leaving the page it cannot be recovered, though unused links can still be revoked.
+When hosting the app, redact `/invite/*` paths and auth `next` parameters from
+infrastructure access logs; those URLs carry the invitation credential.
 
 Circle member identity is limited to the existing profile display name. A restricted
 database function returns only user IDs and display names when the authenticated caller
