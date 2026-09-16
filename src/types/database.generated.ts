@@ -17,6 +17,84 @@ type Relationship = {
 export type Database = {
   public: {
     Tables: {
+      circle_workout_goals: {
+        Row: {
+          id: string;
+          circle_id: string;
+          created_by: string;
+          target_workouts: number;
+          starts_at: string;
+          ends_at: string;
+          created_at: string;
+          cancelled_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          circle_id: string;
+          created_by: string;
+          target_workouts: number;
+          starts_at: string;
+          ends_at: string;
+          created_at: string;
+          cancelled_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          circle_id?: string;
+          created_by?: string;
+          target_workouts?: number;
+          starts_at?: string;
+          ends_at?: string;
+          created_at?: string;
+          cancelled_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "circle_workout_goals_circle_id_fkey";
+            columns: ["circle_id"];
+            isOneToOne: false;
+            referencedRelation: "gym_circles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "circle_workout_goals_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      circle_workout_goal_participants: {
+        Row: {
+          goal_id: string;
+          user_id: string;
+        };
+        Insert: {
+          goal_id: string;
+          user_id: string;
+        };
+        Update: {
+          goal_id?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "circle_workout_goal_participants_goal_id_fkey";
+            columns: ["goal_id"];
+            isOneToOne: false;
+            referencedRelation: "circle_workout_goals";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "circle_workout_goal_participants_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       circle_invites: {
         Row: {
           id: string;
@@ -512,6 +590,42 @@ export type Database = {
     };
     Views: { [_ in never]: never };
     Functions: {
+      create_circle_workout_goal: {
+        Args: { p_circle_id: string; p_target_workouts: number };
+        Returns: string;
+      };
+      get_active_circle_workout_goal: {
+        Args: { p_circle_id: string };
+        Returns: {
+          goal_id: string;
+          circle_id: string;
+          created_by: string;
+          target_workouts: number;
+          starts_at: string;
+          ends_at: string;
+          created_at: string;
+        }[];
+      };
+      get_circle_workout_goal_progress: {
+        Args: { p_goal_id: string };
+        Returns: {
+          goal_id: string;
+          circle_id: string;
+          target_workouts: number;
+          starts_at: string;
+          ends_at: string;
+          cancelled_at: string | null;
+          goal_status: string;
+          group_complete: boolean;
+          user_id: string;
+          display_name: string | null;
+          completed_workouts: number;
+        }[];
+      };
+      cancel_circle_workout_goal: {
+        Args: { p_goal_id: string };
+        Returns: undefined;
+      };
       accept_circle_invite: { Args: { p_token: string }; Returns: string };
       get_circle_active_invites: {
         Args: { p_circle_id: string };

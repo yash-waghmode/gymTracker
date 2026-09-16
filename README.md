@@ -37,10 +37,10 @@ No external Supabase project is provisioned by this repository.
 ## Database development
 
 The migrations in `supabase/migrations` create profiles, exercises, routines, private
-Gym Circles, members and invitations, shared session context, session participants,
-individually owned workouts, workout exercises, and sets. Creating a session
-automatically adds its creator as the first participant, so a normal solo workout uses
-the same model as a future shared workout.
+Gym Circles, members, invitations, seven-day Circle workout goals, shared session
+context, session participants, individually owned workouts, workout exercises, and
+sets. Creating a session automatically adds its creator as the first participant, so
+solo and shared workouts use the same ownership model.
 
 With Docker running, use the repo-local Supabase CLI:
 
@@ -86,7 +86,7 @@ members, and expose owner deletion or non-owner leaving as appropriate. Owners c
 create, copy, and revoke one-time invitation links on the Circle detail page. The
 `/invite/[token]` route previews a valid Circle invitation, sends unauthenticated
 visitors through sign-in, and accepts it before opening the joined Circle. Invitation
-delivery, shared Circle workouts, goals, reactions, nudges, and feeds remain out of scope.
+delivery, goal UI, reactions, nudges, and feeds remain out of scope.
 
 Circle owners can create one-time bearer invitations through the server data layer.
 The database stores only a SHA-256 digest of each 64-character random credential;
@@ -106,6 +106,16 @@ database function returns only user IDs and display names when the authenticated
 currently belongs to the requested Circle; direct profile reads remain self-only. Users
 can set their own Circle display name from `/app/profile`. Email and training data are
 never part of the Circle identity response.
+
+The Circle goal backend supports one active seven-day goal per Circle, created and
+cancelled by its owner. The target is 1–7 completed personal workouts per eligible
+member, counting solo and shared workouts completed within `[starts_at, ends_at)`.
+Eligibility is the creation-time member snapshot intersected with current membership:
+late joiners are excluded, leavers stop affecting success, and a starting member who
+leaves then rejoins becomes eligible again (including their in-window completions).
+Expired goals stop being active without a scheduler. Restricted functions return only
+member display names, counts, timing, and group status; personal workout rows remain
+owner-only. No goal UI exists yet.
 
 ## Verification
 
