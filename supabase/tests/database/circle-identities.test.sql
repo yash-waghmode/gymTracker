@@ -16,7 +16,31 @@ values
     '40000000-0000-0000-0000-000000000003',
     'identity-c@example.test',
     '{"display_name":"Casey Unrelated"}'::jsonb
+  ),
+  (
+    '40000000-0000-0000-0000-000000000004',
+    'identity-d@example.test',
+    '{}'::jsonb
   );
+
+do $$
+begin
+  if (
+    select display_name from public.profiles
+    where id = '40000000-0000-0000-0000-000000000001'
+  ) is distinct from 'Asha Owner' then
+    raise exception 'New account display name was not copied into its profile';
+  end if;
+
+  if not exists (
+    select 1 from public.profiles
+    where id = '40000000-0000-0000-0000-000000000004'
+      and display_name is null
+  ) then
+    raise exception 'Account without a display name did not retain a valid profile';
+  end if;
+end;
+$$;
 
 set role authenticated;
 select set_config(

@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { inviteReturnPath } from "@/lib/invite";
+import { parseDisplayName } from "@/lib/profile";
 import { getSiteUrl, isSupabaseConfigured } from "@/lib/supabase/config";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
@@ -28,15 +29,23 @@ function readCredentials(formData: FormData): Credentials | null {
   return { email: email.trim(), password };
 }
 
-function authDestination(reason: string, returnPath: string | null) {
+function authDestination(
+  reason: string,
+  returnPath: string | null,
+  mode: "signin" | "signup" = "signin",
+) {
   const params = new URLSearchParams({ error: reason });
   if (returnPath) params.set("next", returnPath);
+  if (mode === "signup") params.set("mode", mode);
   return `/auth?${params}`;
 }
 
-function requireSupabaseConfiguration(returnPath: string | null) {
+function requireSupabaseConfiguration(
+  returnPath: string | null,
+  mode: "signin" | "signup" = "signin",
+) {
   if (!isSupabaseConfigured()) {
-    redirect(authDestination("not-configured", returnPath));
+    redirect(authDestination("not-configured", returnPath, mode));
   }
 }
 
@@ -62,11 +71,18 @@ export async function signIn(formData: FormData) {
 
 export async function signUp(formData: FormData) {
   const returnPath = inviteReturnPath(formData.get("next"));
-  requireSupabaseConfiguration(returnPath);
+  requireSupabaseConfiguration(returnPath, "signup");
   const credentials = readCredentials(formData);
 
   if (!credentials) {
-    redirect(authDestination("invalid-input", returnPath));
+    redirect(authDestination("invalid-input", returnPath, "signup"));
+  }
+
+  let displayName: string;
+  try {
+    displayName = parseDisplayName(formData.get("displayName"));
+  } catch {
+    redirect(authDestination("invalid-display-name", returnPath, "signup"));
   }
 
   const supabase = await createServerSupabaseClient();
@@ -76,11 +92,12 @@ export async function signUp(formData: FormData) {
     ...credentials,
     options: {
       emailRedirectTo: callback.toString(),
+      data: { display_name: displayName },
     },
   });
 
   if (error) {
-    redirect(authDestination("signup-failed", returnPath));
+    redirect(authDestination("signup-failed", returnPath, "signup"));
   }
 
   revalidatePath("/", "layout");
@@ -88,5 +105,6 @@ export async function signUp(formData: FormData) {
 
   const params = new URLSearchParams({ notice: "check-email" });
   if (returnPath) params.set("next", returnPath);
+  params.set("mode", "signup");
   redirect(`/auth?${params}`);
 }
