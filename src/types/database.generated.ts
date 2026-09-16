@@ -17,6 +17,68 @@ type Relationship = {
 export type Database = {
   public: {
     Tables: {
+      gym_circles: {
+        Row: {
+          id: string;
+          name: string;
+          owner_id: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          owner_id: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          owner_id?: string;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "gym_circles_owner_id_fkey";
+            columns: ["owner_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      circle_members: {
+        Row: {
+          circle_id: string;
+          user_id: string;
+          joined_at: string;
+        };
+        Insert: {
+          circle_id: string;
+          user_id: string;
+          joined_at?: string;
+        };
+        Update: {
+          circle_id?: string;
+          user_id?: string;
+          joined_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "circle_members_circle_id_fkey";
+            columns: ["circle_id"];
+            isOneToOne: false;
+            referencedRelation: "gym_circles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "circle_members_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       profiles: {
         Row: {
           id: string;
@@ -379,6 +441,9 @@ export type Database = {
     };
     Views: { [_ in never]: never };
     Functions: {
+      create_circle: { Args: { p_name: string }; Returns: string };
+      leave_circle: { Args: { p_circle_id: string }; Returns: undefined };
+      delete_circle: { Args: { p_circle_id: string }; Returns: undefined };
       save_routine: {
         Args: {
           p_id: string | null;

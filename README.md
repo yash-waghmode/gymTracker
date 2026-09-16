@@ -2,7 +2,8 @@
 
 A mobile-first solo fitness tracker: manage routines, log sets in kilograms,
 finish workouts, and inspect private training history and exercise records.
-Shared-session ownership remains in the database; Circle and multiplayer UI are deferred.
+Private Gym Circle membership and shared-session ownership are supported in the
+database; Circle and multiplayer UI are deferred.
 
 Read [AGENTS.md](AGENTS.md) for the canonical product scope, architecture direction,
 data-ownership invariant, and autonomous development workflow.
@@ -35,10 +36,11 @@ No external Supabase project is provisioned by this repository.
 
 ## Database development
 
-The migration in `supabase/migrations` creates profiles, exercises, routines, shared
-session context, session participants, individually owned workouts, workout exercises,
-and sets. Creating a session automatically adds its creator as the first participant,
-so a normal solo workout uses the same model as a future shared workout.
+The migrations in `supabase/migrations` create profiles, exercises, routines, private
+Gym Circles and members, shared session context, session participants, individually
+owned workouts, workout exercises, and sets. Creating a session automatically adds
+its creator as the first participant, so a normal solo workout uses the same model as
+a future shared workout.
 
 With Docker running, use the repo-local Supabase CLI:
 
@@ -67,6 +69,19 @@ To use a hosted Supabase project later:
 
 The application never uses a secret/service key for ordinary user operations. Database
 RLS policies authorize those requests from the authenticated user's JWT.
+
+## Gym Circle data foundation
+
+An authenticated user can own and belong to multiple private Circles. Creating one
+atomically records the authenticated caller as its owner and first member. Members can
+read only their Circles and those Circles' membership rows. Membership tables are not
+directly writable by authenticated clients: identity-deriving database functions handle
+creation, leaving, and owner-only deletion. A non-owner may leave; an owner must delete
+the Circle, which cascades only its membership rows. Neither action changes personal
+workout history, and Circle membership grants no workout or set access.
+
+Invites, Circle UI, shared Circle workouts, goals, reactions, nudges, and feeds remain
+out of scope.
 
 ## Verification
 
