@@ -10,6 +10,7 @@ import {
   getActiveCircleGoal,
   getCircleGoalProgress,
 } from "@/data/circle-goals";
+import { getMyGoalNudges } from "@/data/circle-nudges";
 import {
   getCircle,
   getCircleActiveInvites,
@@ -52,9 +53,12 @@ export default async function CircleDetail({
     isOwner ? getCircleActiveInvites(circleId) : Promise.resolve([]),
     getActiveCircleGoal(circleId),
   ]);
-  const goalProgress = activeGoal
-    ? await getCircleGoalProgress(activeGoal.goalId)
-    : null;
+  const [goalProgress, myNudges] = activeGoal
+    ? await Promise.all([
+        getCircleGoalProgress(activeGoal.goalId),
+        getMyGoalNudges(activeGoal.goalId),
+      ])
+    : [null, []];
   const [choices, participants] = await Promise.all([
     getSharedWorkoutChoices(activeSessions.map((session) => session.sessionId)),
     Promise.all(
@@ -91,6 +95,7 @@ export default async function CircleDetail({
         isOwner={isOwner}
         members={members}
         progress={goalProgress}
+        myNudges={myNudges}
       />
 
       <SharedTraining

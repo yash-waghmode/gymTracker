@@ -461,6 +461,38 @@
 .goal-participants progress::-moz-progress-bar {
   background: var(--accent-strong);
 }
+.goal-nudge-received {
+  padding: 0.75rem 0.9rem;
+  border-left: 3px solid var(--accent-strong);
+  border-radius: 0.4rem;
+  background: var(--accent-soft);
+  line-height: 1.45;
+}
+.goal-nudge-more {
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+.goal-nudge-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.25rem 0.65rem;
+  margin-top: 0.5rem;
+}
+.circle-goal .goal-nudge-form button {
+  width: auto;
+  min-height: 2.75rem;
+  padding: 0.55rem 0.9rem;
+  font-size: 0.875rem;
+}
+.goal-nudge-feedback {
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+.goal-nudge-feedback:empty {
+  display: none;
+}
 .goal-footer {
   display: flex;
   flex-wrap: wrap;

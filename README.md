@@ -131,7 +131,11 @@ current membership, goal eligibility, completion, and the active window before
 recording a nudge. Direct client table access is denied. A current recipient
 can read only their own nudges for a specified goal, with Circle name, timestamp,
 and the sender’s display name only while that sender remains a Circle member.
-There is no nudge UI, delivery mechanism, or general notification history.
+The active Circle goal card offers a Nudge action for incomplete eligible
+teammates and shows the current recipient a compact acknowledgment of nudges
+received for that goal. A successful send disables that row's button until
+refresh; a repeated send during cooldown receives a friendly message. There
+is no delivery mechanism or general notification history.
 
 ## Verification
 

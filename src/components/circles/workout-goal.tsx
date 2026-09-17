@@ -3,9 +3,15 @@ import {
   createCircleGoalAction,
 } from "@/app/(protected)/app/circle-actions";
 import { ActionForm } from "@/components/training/forms";
+import { GoalNudgeForm } from "@/components/circles/goal-nudge-form";
 import type { CircleGoalProgress } from "@/data/circle-goals";
+import type { MyCircleGoalNudge } from "@/data/circle-nudges";
 import type { CircleMemberIdentity } from "@/data/circles";
-import { goalTimeRemaining, orderedGoalParticipants } from "@/lib/circle-goal";
+import {
+  canNudgeGoalParticipant,
+  goalTimeRemaining,
+  orderedGoalParticipants,
+} from "@/lib/circle-goal";
 
 export function CircleWorkoutGoal({
   circleId,
@@ -13,12 +19,14 @@ export function CircleWorkoutGoal({
   isOwner,
   members,
   progress,
+  myNudges,
 }: {
   circleId: string;
   currentUserId: string;
   isOwner: boolean;
   members: CircleMemberIdentity[];
   progress: CircleGoalProgress | null;
+  myNudges: MyCircleGoalNudge[];
 }) {
   if (!progress) {
     return (
@@ -71,6 +79,11 @@ export function CircleWorkoutGoal({
     (participant) => participant.completedWorkouts >= progress.targetWorkouts,
   ).length;
   const endsAt = new Date(progress.endsAt);
+  const now = new Date();
+  const myProgress = participants.find(
+    (participant) => participant.userId === currentUserId,
+  );
+  const latestNudge = myNudges[0];
   const endLabel = new Intl.DateTimeFormat("en", {
     weekday: "short",
     month: "short",
@@ -107,6 +120,38 @@ export function CircleWorkoutGoal({
           ? "Everyone reached the goal. Nice work together!"
           : `${completedCount} of ${participants.length} finished — keep going together.`}
       </p>
+      {latestNudge &&
+        (progress.status === "active" || progress.status === "succeeded") &&
+        endsAt > now && (
+          <p className="goal-nudge-received">
+            <strong>
+              {latestNudge.senderDisplayName ?? "A Circle member"}
+            </strong>{" "}
+            {myProgress &&
+            myProgress.completedWorkouts >= progress.targetWorkouts
+              ? "nudged you during this goal."
+              : "nudged you to keep the goal moving."}
+            {myProgress &&
+              myProgress.completedWorkouts < progress.targetWorkouts && (
+                <>
+                  {" "}
+                  {progress.targetWorkouts - myProgress.completedWorkouts}{" "}
+                  {progress.targetWorkouts - myProgress.completedWorkouts === 1
+                    ? "workout"
+                    : "workouts"}{" "}
+                  left.
+                </>
+              )}
+            {myNudges.length > 1 && (
+              <span className="goal-nudge-more">
+                {" "}
+                · {myNudges.length - 1} more{" "}
+                {myNudges.length === 2 ? "encouragement" : "encouragements"}{" "}
+                this goal
+              </span>
+            )}
+          </p>
+        )}
       <ul className="goal-participants" aria-label="Goal progress by member">
         {participants.map((participant) => {
           const complete =
@@ -141,6 +186,19 @@ export function CircleWorkoutGoal({
                 )}
                 aria-label={`${name}: ${participant.completedWorkouts} of ${progress.targetWorkouts} workouts`}
               />
+              {canNudgeGoalParticipant(
+                progress,
+                currentUserId,
+                participant,
+                now,
+              ) && (
+                <GoalNudgeForm
+                  circleId={circleId}
+                  goalId={progress.goalId}
+                  recipientId={participant.userId}
+                  recipientName={name}
+                />
+              )}
             </li>
           );
         })}

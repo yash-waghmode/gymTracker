@@ -23,3 +23,23 @@ export function goalTimeRemaining(endsAt: string, now: Date): string {
   const days = Math.ceil(milliseconds / 86_400_000);
   return `${days} ${days === 1 ? "day" : "days"} left`;
 }
+
+export function canNudgeGoalParticipant(
+  progress: CircleGoalProgress,
+  currentUserId: string,
+  participant: CircleGoalProgress["participants"][number],
+  now: Date,
+): boolean {
+  return (
+    progress.status === "active" &&
+    progress.cancelledAt === null &&
+    new Date(progress.startsAt) <= now &&
+    new Date(progress.endsAt) > now &&
+    progress.participants.some((person) => person.userId === currentUserId) &&
+    participant.userId !== currentUserId &&
+    progress.participants.some(
+      (person) => person.userId === participant.userId,
+    ) &&
+    participant.completedWorkouts < progress.targetWorkouts
+  );
+}

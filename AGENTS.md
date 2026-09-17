@@ -21,8 +21,8 @@ history, and basic exercise records, plus private Circle membership, its basic
 create/read/leave/delete UI, a private one-time invitation flow, a minimal
 shared-session UI on the individually owned workout logger, and a seven-day
 cooperative workout-goal card on Circle detail. Realtime syncing and broader
-multiplayer features remain deferred. Contextual goal nudges have a restricted
-backend only; no nudge UI or notification delivery exists.
+multiplayer features remain deferred. Contextual goal nudges appear only in the
+active Circle goal card; there is no notification delivery or inbox.
 Update the README with real setup and verification commands as they become available.
 Do not invent commands or claim absent tests pass.
 

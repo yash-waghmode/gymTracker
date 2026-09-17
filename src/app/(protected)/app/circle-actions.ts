@@ -13,6 +13,7 @@ import {
   type CircleInviteCredential,
 } from "@/data/circles";
 import { cancelCircleGoal, createCircleGoal } from "@/data/circle-goals";
+import { GoalNudgeCooldownError, sendGoalNudge } from "@/data/circle-nudges";
 import { parseId } from "@/lib/training";
 
 import type { ActionResult } from "./training-actions";
@@ -162,5 +163,27 @@ export async function cancelCircleGoalAction(
     return { success: "Goal ended. Everyone’s workouts remain intact." };
   } catch {
     return { error: "Goal could not be ended. Please try again." };
+  }
+}
+
+export async function sendCircleGoalNudgeAction(
+  _: ActionResult,
+  form: FormData,
+): Promise<ActionResult> {
+  try {
+    const circleId = parseId(formString(form, "circle"));
+    await sendGoalNudge(
+      formString(form, "goal"),
+      formString(form, "recipient"),
+    );
+    revalidatePath(`/app/circles/${circleId}`);
+    return { success: "Nudge sent." };
+  } catch (error) {
+    return {
+      error:
+        error instanceof GoalNudgeCooldownError
+          ? "You already nudged them recently."
+          : "Nudge could not be sent. Refresh the goal and try again.",
+    };
   }
 }

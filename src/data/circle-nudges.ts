@@ -10,6 +10,8 @@ export type MyCircleGoalNudge = {
   createdAt: string;
 };
 
+export class GoalNudgeCooldownError extends Error {}
+
 export async function sendGoalNudge(
   goalId: string,
   recipientUserId: string,
@@ -19,6 +21,12 @@ export async function sendGoalNudge(
     p_goal_id: parseId(goalId),
     p_recipient_id: parseId(recipientUserId),
   });
+  if (
+    error?.code === "22023" &&
+    error.message === "You recently nudged this member."
+  ) {
+    throw new GoalNudgeCooldownError();
+  }
   if (error || !data) throw new Error("Goal nudge could not be sent.");
   return data;
 }
