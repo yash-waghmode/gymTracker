@@ -17,6 +17,52 @@ type Relationship = {
 export type Database = {
   public: {
     Tables: {
+      circle_goal_nudges: {
+        Row: {
+          id: string;
+          goal_id: string;
+          sender_id: string;
+          recipient_id: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          goal_id: string;
+          sender_id: string;
+          recipient_id: string;
+          created_at: string;
+        };
+        Update: {
+          id?: string;
+          goal_id?: string;
+          sender_id?: string;
+          recipient_id?: string;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "circle_goal_nudges_goal_id_fkey";
+            columns: ["goal_id"];
+            isOneToOne: false;
+            referencedRelation: "circle_workout_goals";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "circle_goal_nudges_sender_goal_fk";
+            columns: ["goal_id", "sender_id"];
+            isOneToOne: false;
+            referencedRelation: "circle_workout_goal_participants";
+            referencedColumns: ["goal_id", "user_id"];
+          },
+          {
+            foreignKeyName: "circle_goal_nudges_recipient_goal_fk";
+            columns: ["goal_id", "recipient_id"];
+            isOneToOne: false;
+            referencedRelation: "circle_workout_goal_participants";
+            referencedColumns: ["goal_id", "user_id"];
+          },
+        ];
+      };
       circle_workout_goals: {
         Row: {
           id: string;
@@ -590,6 +636,19 @@ export type Database = {
     };
     Views: { [_ in never]: never };
     Functions: {
+      send_circle_goal_nudge: {
+        Args: { p_goal_id: string; p_recipient_id: string };
+        Returns: string;
+      };
+      get_my_circle_goal_nudges: {
+        Args: { p_goal_id: string };
+        Returns: {
+          nudge_id: string;
+          sender_display_name: string | null;
+          circle_name: string;
+          created_at: string;
+        }[];
+      };
       create_circle_workout_goal: {
         Args: { p_circle_id: string; p_target_workouts: number };
         Returns: string;

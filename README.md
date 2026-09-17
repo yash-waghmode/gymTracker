@@ -123,6 +123,16 @@ goal; they are not shown as failing participants. Refreshing the Circle page
 loads updated counts after workouts are completed. There is no realtime sync
 or goal archive UI.
 
+The nudge backend is limited to the current seven-day Circle goal. A current
+eligible member can encourage another incomplete eligible member without a
+custom message, at most once per sender–recipient pair per goal in a rolling
+24-hour window. PostgreSQL derives the sender from authentication and checks
+current membership, goal eligibility, completion, and the active window before
+recording a nudge. Direct client table access is denied. A current recipient
+can read only their own nudges for a specified goal, with Circle name, timestamp,
+and the sender’s display name only while that sender remains a Circle member.
+There is no nudge UI, delivery mechanism, or general notification history.
+
 ## Verification
 
 ```bash
